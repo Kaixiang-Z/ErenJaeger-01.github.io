@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+  <link rel="mask-icon" href="/icon/safari_pinned_tab.svg" color="#222">
+  <meta name="msvalidate.01" content="810C1F04383CF423C00C89AC5EACF70B">
+  <meta name="baidu-site-verification" content="code-67ti2EIwqA">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"erenjaeger-01.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.11.1","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":15},"copycode":true,"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"livere","storage":true,"lazyload":false,"nav":{"livere":{"text":"......","order":-1}},"activeClass":"livere"},"stickytabs":true,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="终于开始学PX4了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PX4学习（一）：倾转分离">
+<meta property="og:url" content="https://erenjaeger-01.github.io/2022/07/15/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/index.html">
+<meta property="og:site_name" content="KxZhang&#39;s Blog">
+<meta property="og:description" content="终于开始学PX4了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://erenjaeger-01.github.io/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E5%86%85%E7%A7%AF.png">
+<meta property="og:image" content="https://erenjaeger-01.github.io/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E5%9D%90%E6%A0%87%E6%97%8B%E8%BD%AC.png">
+<meta property="og:image" content="https://erenjaeger-01.github.io/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E4%BB%BF%E7%9C%9F%E9%AA%8C%E8%AF%81.png">
+<meta property="article:published_time" content="2022-07-15T01:23:09.000Z">
+<meta property="article:modified_time" content="2022-07-16T07:12:32.000Z">
+<meta property="article:author" content="张凯翔">
+<meta property="article:tag" content="PX4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://erenjaeger-01.github.io/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E5%86%85%E7%A7%AF.png">
+
+
+<link rel="canonical" href="https://erenjaeger-01.github.io/2022/07/15/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://erenjaeger-01.github.io/2022/07/15/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/","path":"2022/07/15/PX4学习（一）：倾转分离/","title":"PX4学习（一）：倾转分离"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PX4学习（一）：倾转分离 | KxZhang's Blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="KxZhang's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">KxZhang's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Like a giddy planet beside a burning star.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%B7%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">起源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">解决方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%AD%A5%E9%AA%A4"><span class="nav-number">4.</span> <span class="nav-text">算法步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">5.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0"><span class="nav-number">5.1.</span> <span class="nav-text">四元数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5"><span class="nav-number">5.2.</span> <span class="nav-text">旋转矩阵</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PX4%E7%9A%84%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB%E5%AE%9E%E7%8E%B0"><span class="nav-number">6.</span> <span class="nav-text">PX4的倾转分离实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BF%E7%9C%9F%E9%AA%8C%E8%AF%81"><span class="nav-number">7.</span> <span class="nav-text">仿真验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="张凯翔"
+      src="/assets/author.png">
+  <p class="site-author-name" itemprop="name">张凯翔</p>
+  <div class="site-description" itemprop="description">博学慎思，参天尽物</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ErenJaeger-01" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ErenJaeger-01" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1102858312@qq.com" title="E-Mail → mailto:1102858312@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.google.com/" title="Google → https:&#x2F;&#x2F;www.google.com" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/281403791/" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;281403791&#x2F;" rel="noopener" target="_blank"><i class="fab fa-bilibili fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+
+      
+      <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+      <div class="widget-wrap">
+          <!--<h3 class="widget-title"> 我的标签 </h3>-->
+          <div id="myCanvasContainer" class="widget tagcloud">
+              <canvas width="250" height="200" id="resCanvas" style="width=100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Computer-Version/" rel="tag">Computer Version</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/" rel="tag">Math</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PX4/" rel="tag">PX4</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a><span class="tag-list-count">5</span></li></ul>
+              </canvas>
+          </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/ErenJaeger-01" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://erenjaeger-01.github.io/2022/07/15/PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/author.png">
+      <meta itemprop="name" content="张凯翔">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="KxZhang's Blog">
+      <meta itemprop="description" content="博学慎思，参天尽物">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PX4学习（一）：倾转分离 | KxZhang's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PX4学习（一）：倾转分离
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-15 09:23:09" itemprop="dateCreated datePublished" datetime="2022-07-15T09:23:09+08:00">2022-07-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-16 15:12:32" itemprop="dateModified" datetime="2022-07-16T15:12:32+08:00">2022-07-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PX4/" itemprop="url" rel="index"><span itemprop="name">PX4</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="起源"><a href="#起源" class="headerlink" title="起源"></a>起源</h3><p>多旋翼的姿态控制中，$roll$和$pitch$的改变来自于旋翼提供的升力差实现，调整很快，十几毫秒就能到位，$yaw$的改变是通过改变旋翼产生的反扭距来调成，调整时间比较慢，要快100个毫秒才能就位。</p>
+<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>一般来说，多旋翼80%的能量用于抵抗重力，20%的能量用于控制姿态。当$roll，pitch，yaw$都有较大误差时，20%的能量被三个通道的控制器共同使用，而由于$yaw$响应较慢，会导致$yaw$的误差减小的比较慢，占用了更多用于姿态控制的能量，反而影响到整个姿态控制。</p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>因为旋翼飞行器稳定飞行的第一要求是桨平面的精确控制，也就是$roll$和$pitch$，这两个角控不好飞机飞都飞不稳，相对来说，$yaw$是不是足够精确显得没有那么重要（毕竟机头朝向哪里都能飞）。那么在计算误差时，把误差分为两个部分，一部分是倾斜误差$tilt$（$roll$和$pitch$误差），一部分是旋转误差$torsion$，然后对$torsion$做一些处理，比如限幅或者衰减，再重新合成一个总的姿态误差给控制器，这样，大部分姿态控制的能量用于$roll$和$pitch$，有助于实现稳定飞行。</p>
+<h3 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h3><ul>
+<li>对齐当前机体坐标系z轴和期望机体坐标系z轴得到一个新的坐标系，获得tilt误差</li>
+<li>把$tilt$误差转换到地理坐标系或者机体坐标系</li>
+<li>总误差-$tilt$误差$&#x3D;torsion$误差</li>
+<li>限制$torsion$误差</li>
+<li>把限制后的$torsion$误差和$tilt$误差合成新的误差作为总误差</li>
+</ul>
+<h3 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h3><h4 id="四元数"><a href="#四元数" class="headerlink" title="四元数"></a>四元数</h4><p>首先定义两个向量</p>
+<ul>
+<li>$v_b$：某一个向量在机体坐标系下的坐标</li>
+<li>$v_e$：同一个向量在地理坐标系下的坐标</li>
+</ul>
+<p>那么旋转过程可以用下面的公式来表示：</p>
+<p>$$<br>   v_e &#x3D; q_b^e \cdot v_b \cdot (q_b^e)^{-1}<br>$$</p>
+<p>这里，$q_b^e$就对应旋转矩阵中的$C_b^e$。</p>
+<p>同时，四元数还遵循链式法则，比如某个向量连续进行了两次旋转，那么有</p>
+<p>$$<br>    q^3_1 &#x3D; q^3_2 \cdot q^2_1<br>$$</p>
+<p><strong>注意</strong> 链式法则只有在同一坐标系下才是可以用的，比如机体坐标系，首先旋转了$q1$，然后又旋转了$q2$，那么总的旋转可以用$q&#x3D;q2 \cdot q1$来表示，再转到地理坐标系下就是</p>
+<p>$$<br>    v_e &#x3D; q2 \cdot (q1 \cdot v_b \cdot (q1)^{-1}) \cdot (q2)^{-1} &#x3D; (q2 \cdot q1) \cdot v_b \cdot (q2 \cdot q1)^{-1}<br>$$</p>
+<h4 id="旋转矩阵"><a href="#旋转矩阵" class="headerlink" title="旋转矩阵"></a>旋转矩阵</h4><p>先定义几个概念：当前坐标系下的一组单位正交基<br>$$<br>    \begin{pmatrix}<br>    e_1 &amp; e_2 &amp; e_3<br>    \end{pmatrix}<br>$$<br>经过旋转后，新的坐标系下的单位正交基为<br>$$<br>    \begin{pmatrix}<br>    e^{‘}_1 &amp; e^{‘}_2 &amp; e^{‘}_3<br>    \end{pmatrix}<br>$$<br>对于同一向量$a$，在两个坐标系下的坐标分别为<br>$$<br>    \begin{pmatrix}<br>    a_1 &amp; a_2 &amp; a_3<br>    \end{pmatrix}^T ,<br>    \begin{pmatrix}<br>    a^{‘}_1 &amp; a^{‘}_2 &amp; a^{‘}_3<br>    \end{pmatrix}^T<br>$$</p>
+<p>那么通过基与坐标的关系可得<br>$$<br>    \begin{pmatrix}<br>    e_1 &amp; e_2 &amp; e_3<br>    \end{pmatrix} \cdot<br>    \begin{pmatrix}<br>    a_1 \ a_2 \ a_3<br>    \end{pmatrix} &#x3D;<br>    \begin{pmatrix}<br>    e^{‘}_1 &amp; e^{‘}_2 &amp; e^{‘}_3<br>    \end{pmatrix} \cdot<br>    \begin{pmatrix}<br>    a^{‘}_1 \ a^{‘}_2 \ a^{‘}_3<br>    \end{pmatrix}<br>$$</p>
+<p>等式两边左乘<br>$$<br>    \begin{pmatrix}<br>    e_1^T &amp; e_2^T &amp; e_3^T<br>    \end{pmatrix}^T<br>$$</p>
+<p>可以得到<br>$$<br>    \begin{pmatrix}<br>    a_1 \ a_2 \ a_3<br>    \end{pmatrix} &#x3D;<br>    \begin{pmatrix}<br>    e_1^Te^{‘}_1 &amp; e_1^Te^{‘}_2 &amp; e_1^Te^{‘}_3 \<br>    e_2^Te^{‘}_1 &amp; e_2^Te^{‘}_2 &amp; e_2^Te^{‘}_3 \<br>    e_3^Te^{‘}_1 &amp; e_3^Te^{‘}_2 &amp; e_3^Te^{‘}_3<br>    \end{pmatrix} \cdot<br>    \begin{pmatrix}<br>    a^{‘}_1 \ a^{‘}_2 \ a^{‘}_3<br>    \end{pmatrix}<br>$$</p>
+<p>现在让我们回忆一下向量内积</p>
+<p><img src="/./PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E5%86%85%E7%A7%AF.png" alt="向量内积"></p>
+<p>对于两个向量$e_1$和$e^{‘}_1$，他们的内积$(e^{‘}_1,e_1)&#x3D;e^T_1\cdot e^{‘}_1$,而他们的几何意义可以看成$e^{‘}_1$在$e_1$方向上投影的模再乘$e_1$本身的模，$e_1$又是单位向量，模值为1，所以再这种情况下，$e^T_1\cdot e^{‘}_1$的值就等于$e^{‘}_1$在$e_1$方向上投影的模。</p>
+<p>观察旋转矩阵，可以发现旋转矩阵的每一列都是旋转后的坐标系下的基在原坐标系下的基的投影分量，放到姿态解算这个问题上来，设地理坐标系为北东地（NED）坐标系，各xyz坐标轴上的单位向量为一组基，那么旋转过后的坐标系，也就是机体坐标系，这两个坐标系之间的旋转矩阵的第一列代表机体坐标系下的x轴在地理坐标系xyz轴上各轴的分量，也可以理解为坐标，第二列表示机体坐标系下y轴在地理坐标系xyz轴上各轴的分量，以此类推。</p>
+<h3 id="PX4的倾转分离实现"><a href="#PX4的倾转分离实现" class="headerlink" title="PX4的倾转分离实现"></a>PX4的倾转分离实现</h3><p>根据上面的算法我们知道，在当前机体坐标系转到期望机体坐标系之前，首先要得到一个中间坐标系，这个坐标系将当前的机体坐标系和期望机体坐标系的z轴进行了对齐，但是保留了$yaw$的误差，就像下图所示。</p>
+<p><img src="/./PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E5%9D%90%E6%A0%87%E6%97%8B%E8%BD%AC.png" alt="各坐标系一览"></p>
+<p>可以看到，中间坐标系（灰色）和期望坐标系（蓝色）的区别仅仅是z轴的旋转。那么首先就要获得这个中间坐标系。</p>
+<p>在PX4的姿态控制代码中，首先获得了当前姿态和期望姿态的四元数$q^{N}<em>{cur}$和$q^{N}</em>{tar}$<br>然后把当前姿态和期望姿态的z轴向量提取出来，也就是先转换成旋转矩阵，根据上面旋转矩阵得出的结论可以知道，旋转矩阵的第三列就是机体坐标系z轴在地理坐标系下对应的向量坐标。</p>
+<p>得到了两个向量，可以通过这两个向量，构造出旋转四元数$q_{red}$，注意这里的旋转四元数是在地理坐标系下构建的，不能用于链式法则。或者说，这个四元数应该长成这样：</p>
+<p>$$<br>    [q^{cur}_{half}]^N<br>$$</p>
+<p>换句话说，这个四元数是在地理坐标系下看到的当前坐标系与中间坐标系之间的误差。因此要先将其转换到机体坐标系下。根据公式，有</p>
+<p>$$<br>    [q^{cur}<em>{half}]^N&#x3D;(q^{N}</em>{cur}) \cdot q^{cur}<em>{half} \cdot (q^{N}</em>{cur})^{-1}<br>$$</p>
+<p>得到</p>
+<p>$$<br>    q^{cur}<em>{half}&#x3D;(q^{N}</em>{cur})^{-1} \cdot [q^{cur}<em>{half}]^N \cdot (q^{N}</em>{cur})<br>$$</p>
+<p>转到机体坐标系下后就可以用链式法则了。中间坐标系到地理坐标系的旋转四元数为</p>
+<p>$$<br>    q^{N}<em>{half}&#x3D;q^{N}</em>{cur} \cdot q_{half}^{cur} &#x3D; q^{N}<em>{cur} \cdot (q^{N}</em>{cur})^{-1} \cdot [q^{cur}<em>{half}]^N \cdot (q^{N}</em>{cur}) &#x3D; [q^{cur}<em>{half}]^N \cdot (q^{N}</em>{cur})<br>$$</p>
+<p>这样就得到中间坐标系的旋转四元数了。下一步是得到旋转误差$torsion$四元数，这个四元数就是把中间坐标系旋转到目标坐标系，我们把它叫$q_{tar}^{half}$。由链式法则可以得到</p>
+<p>$$<br>  q_{tar}^{half}&#x3D;q_{N}^{half} \cdot q_{tar}^{N} &#x3D; (q_{half}^{N})^{-1} \cdot q_{tar}^{N}<br>$$</p>
+<p>这个四元数就表征了$yaw$误差的大小，根据轴角定义可得，这个四元数正常来说应该长这样：</p>
+<p>$$<br>    q_{tar}^{half}&#x3D;(\cos{\theta&#x2F;2},0,0,\sin{\theta&#x2F;2 \cdot z})<br>$$</p>
+<p>$\theta$就是要转的$yaw$，也就是$yaw$轴误差。我们可以对这个误差进行限幅或者衰减。</p>
+<p>最后，把衰减后的旋转误差四元数和倾斜误差四元数合成，得到新的期望四元数</p>
+<p>$$<br>    q_{tar}^{N} &#x3D; q^{N}<em>{half} \cdot q</em>{tar}^{half}<br>$$</p>
+<p>接下来，获得总的误差四元数</p>
+<p>$$<br>    q_{tar}^{N} &#x3D; q^{N}<em>{cur} \cdot q^{cur}</em>{tar}, \<br>    q_{e} &#x3D; q^{cur}<em>{tar} &#x3D; (q^{N}</em>{cur})^{-1} \cdot q_{tar}^{N}<br>$$</p>
+<p>至此，倾转分离完成。</p>
+<p>PX4相关部分的代码实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">matrix::Vector3f AttitudeControl::update(const Quatf &amp;q) const</span><br><span class="line">&#123;</span><br><span class="line">	Quatf qd = _attitude_setpoint_q;</span><br><span class="line"></span><br><span class="line">	// calculate reduced desired attitude neglecting vehicle&#x27;s yaw to prioritize roll and pitch</span><br><span class="line">	const Vector3f e_z = q.dcm_z();</span><br><span class="line">	const Vector3f e_z_d = qd.dcm_z();</span><br><span class="line">	Quatf qd_red(e_z, e_z_d);</span><br><span class="line"></span><br><span class="line">	if (fabsf(qd_red(1)) &gt; (1.f - 1e-5f) || fabsf(qd_red(2)) &gt; (1.f - 1e-5f)) &#123;</span><br><span class="line">		// In the infinitesimal corner case where the vehicle and thrust have the completely opposite direction,</span><br><span class="line">		// full attitude control anyways generates no yaw input and directly takes the combination of</span><br><span class="line">		// roll and pitch leading to the correct desired yaw. Ignoring this case would still be totally safe and stable.</span><br><span class="line">		qd_red = qd;</span><br><span class="line"></span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		// transform rotation from current to desired thrust vector into a world frame reduced desired attitude</span><br><span class="line">		qd_red *= q;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	// mix full and reduced desired attitude</span><br><span class="line">	Quatf q_mix = qd_red.inversed() * qd;</span><br><span class="line">	q_mix.canonicalize();</span><br><span class="line">	// catch numerical problems with the domain of acosf and asinf</span><br><span class="line">	q_mix(0) = math::constrain(q_mix(0), -1.f, 1.f);</span><br><span class="line">	q_mix(3) = math::constrain(q_mix(3), -1.f, 1.f);</span><br><span class="line">	qd = qd_red * Quatf(cosf(_yaw_w * acosf(q_mix(0))), 0, 0, sinf(_yaw_w * asinf(q_mix(3))));</span><br><span class="line"></span><br><span class="line">	// quaternion attitude control law, qe is rotation from q to qd</span><br><span class="line">	const Quatf qe = q.inversed() * qd;</span><br><span class="line"></span><br><span class="line">	// using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)</span><br><span class="line">	// also taking care of the antipodal unit quaternion ambiguity</span><br><span class="line">	const Vector3f eq = 2.f * qe.canonical().imag();</span><br><span class="line"></span><br><span class="line">	// calculate angular rates setpoint</span><br><span class="line">	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);</span><br><span class="line"></span><br><span class="line">	// Feed forward the yaw setpoint rate.</span><br><span class="line">	// yawspeed_setpoint is the feed forward commanded rotation around the world z-axis,</span><br><span class="line">	// but we need to apply it in the body frame (because _rates_sp is expressed in the body frame).</span><br><span class="line">	// Therefore we infer the world z-axis (expressed in the body frame) by taking the last column of R.transposed (== q.inversed)</span><br><span class="line">	// and multiply it by the yaw setpoint rate (yawspeed_setpoint).</span><br><span class="line">	// This yields a vector representing the commanded rotatation around the world z-axis expressed in the body frame</span><br><span class="line">	// such that it can be added to the rates setpoint.</span><br><span class="line">	if (is_finite(_yawspeed_setpoint)) &#123;</span><br><span class="line">		rate_setpoint += q.inversed().dcm_z() * _yawspeed_setpoint;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	// limit rates</span><br><span class="line">	for (int i = 0; i &lt; 3; i++) &#123;</span><br><span class="line">		rate_setpoint(i) = math::constrain(rate_setpoint(i), -_rate_limit(i), _rate_limit(i));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	return rate_setpoint;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="仿真验证"><a href="#仿真验证" class="headerlink" title="仿真验证"></a>仿真验证</h3><p>贴几张网上的博主关于此部分的matlab代码验证。</p>
+<p><img src="/./PX4%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%80%BE%E8%BD%AC%E5%88%86%E7%A6%BB/%E4%BB%BF%E7%9C%9F%E9%AA%8C%E8%AF%81.png" alt="Matlab验证"><br>图中绿色坐标系为当前机体坐标系，红色坐标系为期望机体坐标系<br>黑色虚线为不进行「倾转分离」时的旋转，那么得到的误差，可以让坐标系完全重合。<br>蓝色虚线为「倾转分离」后计算的旋转，只能保证z重合，即roll 和 pitch 没有误差。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过倾转分离，有效的对$yaw$轴误差进行了限制，有利于控制器分配更多的能量用于更加关键的$pitch$和$roll$控制，实际上就是把倾斜的控制优先级提高了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PX4/" rel="tag"># PX4</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/06/17/RM%E5%8D%97%E8%88%AA%E8%BF%9B%E5%9B%BD%E8%B5%9B%E4%BA%86/" rel="prev" title="RM南航进国赛了">
+                  <i class="fa fa-chevron-left"></i> RM南航进国赛了
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/08/28/%E6%8E%A7%E5%88%B6%E4%B9%8B%E7%BE%8E/" rel="next" title="控制之美">
+                  控制之美 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="lv-container" data-id="city" data-uid="MTAyMC81NjMxNS8zMjc3OA=="></div>
+</div>
+  </main>
+
+  
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-eyes"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">张凯翔</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@next-theme/pjax@0.5.0/pjax.min.js" integrity="sha256-3NkoLDrmHLTYj7csHIZSr0MHAFTXth7Ua/DDt4MRUAg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script><script src="/js/pjax.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script src="/js/third-party/comments/livere.js"></script>
+
+</body>
+</html>
